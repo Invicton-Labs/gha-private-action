@@ -14,7 +14,10 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: ${{ env }}
+outputs:
+  action_outputs_json:
+    description: The outputs (in JSON format) of the private action
+    value: ${{ toJSON(steps.run_private_action.outputs) }}
 
 runs:
   using: 'composite'
@@ -64,36 +67,26 @@ runs:
         echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
         echo ::set-output name=mapped_outputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token) | map_values({value:.})')"
 
-    - id: output_json_test
-      shell: bash
-      run: |
-        echo "::set-output name=test_output::${{ fromJSON( steps.clean_inputs.outputs.mapped_outputs ) }}"
-
-    - shell: bash
-      run: |
-        echo "${{ steps.output_json_test.outputs.test_output }}"
-
-    # # Run the private action
-    # - name: Run Private Action
-    #   id: run_private_action
-    #   uses: ./.github/actions/run-private-action/
-    #   with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
-
-    # # # Map the outputs into a format that can be handled by the outputs parameter
-    # # - name: Map Private Action Outputs
-    # #   id: map_outputs
-    # #   shell: bash
-    # #   working-directory: ./.github/actions/run-private-action/
-    # #   run: |
-    # #     OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-    # #     ${{ toJSON(steps.run_private_action.outputs) }}
-    # #     EOFPRIVATEACTIONJSON
-    # #     )
-    # #     echo "$OUTPUTS_JSON" >> .outputs.json
-    # #     echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+    # Run the private action
+    - name: Run Private Action
+      id: run_private_action
+      uses: ./.github/actions/run-private-action/
+      with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
 
     # # Map the outputs into a format that can be handled by the outputs parameter
-    # - name: Cleanup Directory
+    # - name: Map Private Action Outputs
+    #   id: map_outputs
     #   shell: bash
+    #   working-directory: ./.github/actions/run-private-action/
     #   run: |
-    #     rm -rf ./.github/actions/run-private-action/
+    #     OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+    #     ${{ toJSON(steps.run_private_action.outputs) }}
+    #     EOFPRIVATEACTIONJSON
+    #     )
+    #     echo "$OUTPUTS_JSON" >> .outputs.json
+    #     echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+
+    # Delete the directory we created
+    - name: Cleanup Directory
+      shell: bash
+      run: rm -rf ./.github/actions/run-private-action/
