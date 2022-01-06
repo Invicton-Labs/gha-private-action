@@ -14,33 +14,32 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
   
-  inputs:
-    description: Inputs for the private action, in JSON format
-    required: false
-    default: '{}'
 
-outputs: ${{ steps.run_private_action.outputs }}
+#outputs: ${{ steps.run_private_action.outputs }}
 
 runs:
   using: 'composite'
   steps:
-    # Generate a unique checkout path for the action
-    - name: Generate Unique Checkout Path
-      id: generate_checkout_path
-      shell: bash
-      run: echo ::set-output name=checkout_path::"${{ github.workspace }}/.github/actions/private-action-${RANDOM}${RANDOM}${RANDOM}"
+    - name: Echo inputs
+      run: echo "${{ toJSON(inputs) }}"
 
-    # Checkout the private action
-    - name: Checkout Private Action
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ inputs.repository }}
-        ref: ${{ inputs.ref }}
-        token: ${{ inputs.token }}
-        path: ${{ steps.generate_checkout_path.outputs.checkout_path }}
+    # # Generate a unique checkout path for the action
+    # - name: Generate Unique Checkout Path
+    #   id: generate_checkout_path
+    #   shell: bash
+    #   run: echo ::set-output name=checkout_path::"${{ github.workspace }}/.github/actions/private-action-${RANDOM}${RANDOM}${RANDOM}"
 
-    # Run the private action
-    - name: Run Private Action
-      id: run_private_action
-      uses: ${{ steps.generate_checkout_path.outputs.checkout_path }}
-      with: fromJSON(inputs.inputs)
+    # # Checkout the private action
+    # - name: Checkout Private Action
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: ${{ inputs.repository }}
+    #     ref: ${{ inputs.ref }}
+    #     token: ${{ inputs.token }}
+    #     path: ${{ steps.generate_checkout_path.outputs.checkout_path }}
+
+    # # Run the private action
+    # - name: Run Private Action
+    #   id: run_private_action
+    #   uses: ${{ steps.generate_checkout_path.outputs.checkout_path }}
+    #   with: fromJSON(inputs.inputs)
