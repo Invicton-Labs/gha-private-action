@@ -14,9 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
   
-outputs: 
-  action_outputs:
-    value: ${{ steps.run_private_action.outputs }}
+outputs: fromJSON(steps.map_outputs.outputs.mapped_outputs)
 
 runs:
   using: 'composite'
@@ -41,7 +39,7 @@ runs:
       id: clean_inputs
       shell: bash
       working-directory: ./.github/actions/run-private-action/
-      # If JQ is not installed, install it (using )
+      # If JQ is not installed, install it (using apt or yum, as appropriate)
       run: |
         if ! command -v jq &> /dev/null; then
           if command -v apt &> /dev/null; then
@@ -65,3 +63,25 @@ runs:
       id: run_private_action
       uses: ./.github/actions/run-private-action/
       with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
+
+    # Map the outputs into a format that can be handled by the outputs parameter
+    - name: Map Private Action Outputs
+      id: map_outputs
+      shell: bash
+      working-directory: ./.github/actions/run-private-action/
+      run: |
+        OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+        ${{ toJSON(steps.run_private_action.outputs) }}
+        EOFPRIVATEACTIONJSON
+        )
+        echo "$OUTPUTS_JSON" >> .outputs.json
+        cat .outputs.json
+        echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+
+    # Map the outputs into a format that can be handled by the outputs parameter
+    - name: Cleanup Directory
+      shell: bash
+      run: |
+        rm -rf ./.github/actions/run-private-action/
+        echo "${{ steps.map_outputs.outputs.mapped_outputs }}"
+
