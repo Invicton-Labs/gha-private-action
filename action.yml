@@ -14,7 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: steps.create_checkout_directory.outputs.testjson
+#outputs: steps.create_checkout_directory.outputs.testjson
 
 runs:
   using: 'composite'
@@ -62,11 +62,16 @@ runs:
         )
         echo "$INPUTS_JSON" >> .inputs.json
         echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
-        
+        echo ::set-output name=mapped_outputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token) | map_values({value:.})')"
+
     - id: output_json_test
       shell: bash
       run: |
-        echo "::set-output name=test_output::${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}"
+        echo "::set-output name=test_output::${{ fromJSON( steps.clean_inputs.outputs.mapped_outputs ) }}"
+
+    - shell: bash
+      run: |
+        echo "${{ steps.output_json_test.outputs.test_output }}"
 
     # # Run the private action
     # - name: Run Private Action
