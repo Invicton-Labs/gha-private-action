@@ -16,7 +16,7 @@ inputs:
   
 outputs:
   action_outputs:
-    value: ${{ fromJSON(steps.map_outputs.outputs.mapped_outputs) }}
+    value: ${{ steps.map_outputs.outputs.mapped_outputs }}
 
 runs:
   using: 'composite'
