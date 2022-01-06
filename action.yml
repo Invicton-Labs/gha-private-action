@@ -14,10 +14,9 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
   
-
 outputs: 
   action_outputs:
-    value: toJSON(steps.run_private_action.outputs)
+    value: ${{ steps.run_private_action.outputs }}
 
 runs:
   using: 'composite'
@@ -58,16 +57,8 @@ runs:
         ${{ toJSON(inputs) }}
         EOFPRIVATEACTIONJSON
         )
-        echo "Inputs JSON: $INPUTS_JSON"
         echo "$INPUTS_JSON" >> .inputs.json
-        CLEANED_INPUTS="$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
-        echo "Cleaned Inputs JSON: $CLEANED_INPUTS"
-        echo ::set-output name=cleaned_inputs::"$CLEANED_INPUTS"
-
-    # Create a directory for checking out the private action repository
-    - name: Output inputs
-      shell: bash
-      run: echo "${{ steps.clean_inputs.outputs.cleaned_inputs }}"
+        echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
 
     # Run the private action
     - name: Run Private Action
