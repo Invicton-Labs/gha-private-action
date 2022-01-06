@@ -14,7 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: ${{ inputs }}
+outputs: ${{ env }}
 
 runs:
   using: 'composite'
