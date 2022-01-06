@@ -14,6 +14,8 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
+outputs: fromJSON('{"key1": "value1"}')
+
 runs:
   using: 'composite'
   steps:
@@ -84,10 +86,3 @@ runs:
       shell: bash
       run: |
         rm -rf ./.github/actions/run-private-action/
-
-runs:
-  using: 'composite'
-  steps:
-    - name: Test
-      shell: bash
-      run: echo "test"
