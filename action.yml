@@ -14,7 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: fromJSON(steps.create_checkout_directory.outputs.testjson)
+outputs: fromJSON("{\"output1\":{\"value\":\"foo\"}}")
 
 runs:
   using: 'composite'
