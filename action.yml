@@ -40,5 +40,5 @@ runs:
     # Run the private action
     - name: Run Private Action
       id: run_private_action
-      uses: ${{ steps.generate_checkout_path.outputs.checkout_path }}
+      uses: "${{ steps.generate_checkout_path.outputs.checkout_path }}"
       with: ${{ inputs.inputs }}
