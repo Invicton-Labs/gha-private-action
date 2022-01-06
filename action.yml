@@ -21,6 +21,7 @@ runs:
   using: 'composite'
   steps:
     - name: Echo inputs
+      shell: bash
       run: echo "${{ toJSON(inputs) }}"
 
     # # Generate a unique checkout path for the action
