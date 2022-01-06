@@ -16,7 +16,8 @@ inputs:
   
 
 outputs: 
-  outputs: ${{ steps.run_private_action.outputs }}
+  action_outputs:
+    value: toJSON(steps.run_private_action.outputs)
 
 runs:
   using: 'composite'
