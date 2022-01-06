@@ -25,44 +25,48 @@ runs:
       shell: bash
       run: |
         mkdir -p ./.github/actions/run-private-action/
-        echo "::set-output name=testjson::${{ fromJSON("{\"output1\":{\"value\":\"foo\"}}") }}"
 
-    # # Checkout the private action
-    # - name: Checkout Private Action
-    #   uses: actions/checkout@v2
-    #   with:
-    #     repository: ${{ inputs.action_repository }}
-    #     ref: ${{ inputs.action_ref }}
-    #     token: ${{ inputs.action_token }}
-    #     path: ./.github/actions/run-private-action/
+    # Checkout the private action
+    - name: Checkout Private Action
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ inputs.action_repository }}
+        ref: ${{ inputs.action_ref }}
+        token: ${{ inputs.action_token }}
+        path: ./.github/actions/run-private-action/
 
-    # # If JQ is not installed, install it (using apt or yum, as appropriate)
-    # - name: Install JQ
-    #   shell: bash
-    #   run: |
-    #     if ! command -v jq &> /dev/null; then
-    #       if command -v apt &> /dev/null; then
-    #         sudo apt install -y jq
-    #       elif command -v yum &> /dev/null; then
-    #         sudo yum install -y jq
-    #       else
-    #         echo "Unable to install jq"
-    #         exit 1
-    #       fi
-    #     fi
+    # If JQ is not installed, install it (using apt or yum, as appropriate)
+    - name: Install JQ
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          if command -v apt &> /dev/null; then
+            sudo apt install -y jq
+          elif command -v yum &> /dev/null; then
+            sudo yum install -y jq
+          else
+            echo "Unable to install jq"
+            exit 1
+          fi
+        fi
 
-    # # Remove any inputs that shouldn't be passed to the private action
-    # - name: Remove Extraneous Inputs
-    #   id: clean_inputs
-    #   shell: bash
-    #   working-directory: ./.github/actions/run-private-action/
-    #   run: |
-    #     INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-    #     ${{ toJSON(inputs) }}
-    #     EOFPRIVATEACTIONJSON
-    #     )
-    #     echo "$INPUTS_JSON" >> .inputs.json
-    #     echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
+    # Remove any inputs that shouldn't be passed to the private action
+    - name: Remove Extraneous Inputs
+      id: clean_inputs
+      shell: bash
+      working-directory: ./.github/actions/run-private-action/
+      run: |
+        INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+        ${{ toJSON(inputs) }}
+        EOFPRIVATEACTIONJSON
+        )
+        echo "$INPUTS_JSON" >> .inputs.json
+        echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
+        
+    - id: output_json_test
+      shell: bash
+      run: |
+        echo "::set-output name=test_output::${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}"
 
     # # Run the private action
     # - name: Run Private Action
