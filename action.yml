@@ -14,7 +14,8 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
   
-outputs: fromJSON(steps.map_outputs.outputs.mapped_outputs)
+outputs: 
+  fromJSON(steps.map_outputs.outputs.mapped_outputs)
 
 runs:
   using: 'composite'
