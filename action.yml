@@ -84,3 +84,10 @@ runs:
       shell: bash
       run: |
         rm -rf ./.github/actions/run-private-action/
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Test
+      shell: bash
+      run: echo "test"
