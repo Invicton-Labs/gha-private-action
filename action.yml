@@ -13,10 +13,6 @@ inputs:
   action_token:
     description: The GitHub token to use for checking out the private repository
     required: true
-  
-outputs:
-  action_outputs:
-    value: ${{ toJSON(steps.run_private_action.outputs) }}
 
 runs:
   using: 'composite'
