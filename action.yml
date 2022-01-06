@@ -25,64 +25,64 @@ runs:
       shell: bash
       run: mkdir -p ./.github/actions/run-private-action/
 
-    # Checkout the private action
-    - name: Checkout Private Action
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ inputs.action_repository }}
-        ref: ${{ inputs.action_ref }}
-        token: ${{ inputs.action_token }}
-        path: ./.github/actions/run-private-action/
+    # # Checkout the private action
+    # - name: Checkout Private Action
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: ${{ inputs.action_repository }}
+    #     ref: ${{ inputs.action_ref }}
+    #     token: ${{ inputs.action_token }}
+    #     path: ./.github/actions/run-private-action/
 
-    # If JQ is not installed, install it (using apt or yum, as appropriate)
-    - name: Install JQ
-      shell: bash
-      run: |
-        if ! command -v jq &> /dev/null; then
-          if command -v apt &> /dev/null; then
-            sudo apt install -y jq
-          elif command -v yum &> /dev/null; then
-            sudo yum install -y jq
-          else
-            echo "Unable to install jq"
-            exit 1
-          fi
-        fi
+    # # If JQ is not installed, install it (using apt or yum, as appropriate)
+    # - name: Install JQ
+    #   shell: bash
+    #   run: |
+    #     if ! command -v jq &> /dev/null; then
+    #       if command -v apt &> /dev/null; then
+    #         sudo apt install -y jq
+    #       elif command -v yum &> /dev/null; then
+    #         sudo yum install -y jq
+    #       else
+    #         echo "Unable to install jq"
+    #         exit 1
+    #       fi
+    #     fi
 
-    # Remove any inputs that shouldn't be passed to the private action
-    - name: Remove Extraneous Inputs
-      id: clean_inputs
-      shell: bash
-      working-directory: ./.github/actions/run-private-action/
-      run: |
-        INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-        ${{ toJSON(inputs) }}
-        EOFPRIVATEACTIONJSON
-        )
-        echo "$INPUTS_JSON" >> .inputs.json
-        echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
-
-    # Run the private action
-    - name: Run Private Action
-      id: run_private_action
-      uses: ./.github/actions/run-private-action/
-      with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
-
-    # # Map the outputs into a format that can be handled by the outputs parameter
-    # - name: Map Private Action Outputs
-    #   id: map_outputs
+    # # Remove any inputs that shouldn't be passed to the private action
+    # - name: Remove Extraneous Inputs
+    #   id: clean_inputs
     #   shell: bash
     #   working-directory: ./.github/actions/run-private-action/
     #   run: |
-    #     OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-    #     ${{ toJSON(steps.run_private_action.outputs) }}
+    #     INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+    #     ${{ toJSON(inputs) }}
     #     EOFPRIVATEACTIONJSON
     #     )
-    #     echo "$OUTPUTS_JSON" >> .outputs.json
-    #     echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+    #     echo "$INPUTS_JSON" >> .inputs.json
+    #     echo ::set-output name=cleaned_inputs::"$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq -c 'del(.action_token)')"
 
-    # Map the outputs into a format that can be handled by the outputs parameter
-    - name: Cleanup Directory
-      shell: bash
-      run: |
-        rm -rf ./.github/actions/run-private-action/
+    # # Run the private action
+    # - name: Run Private Action
+    #   id: run_private_action
+    #   uses: ./.github/actions/run-private-action/
+    #   with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
+
+    # # # Map the outputs into a format that can be handled by the outputs parameter
+    # # - name: Map Private Action Outputs
+    # #   id: map_outputs
+    # #   shell: bash
+    # #   working-directory: ./.github/actions/run-private-action/
+    # #   run: |
+    # #     OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+    # #     ${{ toJSON(steps.run_private_action.outputs) }}
+    # #     EOFPRIVATEACTIONJSON
+    # #     )
+    # #     echo "$OUTPUTS_JSON" >> .outputs.json
+    # #     echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+
+    # # Map the outputs into a format that can be handled by the outputs parameter
+    # - name: Cleanup Directory
+    #   shell: bash
+    #   run: |
+    #     rm -rf ./.github/actions/run-private-action/
