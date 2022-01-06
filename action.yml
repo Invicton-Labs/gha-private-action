@@ -22,11 +22,11 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # Generate a unique checkout path for the action
-    - name: Generate Unique Checkout Path
-      id: generate_checkout_path
+    # Create a directory for checking out the private action repository
+    - name: Create Checkout Directory
+      id: create_checkout_directory
       shell: bash
-      run: echo ::set-output name=checkout_path::"${{ github.workspace }}/.github/actions/private-action-${RANDOM}${RANDOM}${RANDOM}"
+      run: mkdir -p ./.github/actions/run-private-action
 
     # Checkout the private action
     - name: Checkout Private Action
@@ -35,10 +35,10 @@ runs:
         repository: ${{ inputs.action_repository }}
         ref: ${{ inputs.action_ref }}
         token: ${{ inputs.action_token }}
-        path: "${{ github.workspace }}/.github/actions/private-action-runner/" # ${{ steps.generate_checkout_path.outputs.checkout_path }}
+        path: ./.github/actions/run-private-action
 
     # Run the private action
     - name: Run Private Action
       id: run_private_action
-      uses: ${{ github.workspace }}/.github/actions/private-action-runner/
+      uses: ./.github/actions/run-private-action
       with: ${{ inputs.inputs }}
