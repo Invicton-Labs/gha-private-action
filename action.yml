@@ -43,10 +43,15 @@ runs:
       shell: bash
       run: |
         if ! command -v jq &> /dev/null; then
-          sudo apt install jq
+          if command -v apt &> /dev/null; then
+            sudo apt install -y jq
+          elif command -v yum &> /dev/null; then
+            sudo yum install -y jq
+          fi
         fi
-        sudo apt install jq
-        echo ::set-output name=cleaned_inputs::"$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<< "${{ toJSON(inputs) }}")"
+        CLEANED_INPUTS=$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<< "${{ toJSON(inputs) }}")
+        echo "$CLEANED_INPUTS"
+        echo ::set-output name=cleaned_inputs::"$CLEANED_INPUTS"
 
     # Run the private action
     - name: Run Private Action
