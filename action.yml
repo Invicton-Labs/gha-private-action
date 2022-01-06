@@ -55,9 +55,9 @@ runs:
           fi
         fi
         INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-${{ toJSON(inputs) }}
-EOFPRIVATEACTIONJSON
-)
+        ${{ toJSON(inputs) }}
+        EOFPRIVATEACTIONJSON
+        )
         echo "$INPUTS_JSON"
         CLEANED_INPUTS=$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<< "${INPUTS_JSON}")
         echo "$CLEANED_INPUTS"
