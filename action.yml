@@ -14,7 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: fromJSON(${{{ steps.create_checkout_directory.outputs.testjson }}})
+outputs: steps.create_checkout_directory.outputs.testjson
 
 runs:
   using: 'composite'
@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         mkdir -p ./.github/actions/run-private-action/
-        echo "::set-output name=testjson::{\"output1\":{\"value\":\"foo\"}}"
+        echo "::set-output name=testjson::${{ fromJSON("{\"output1\":{\"value\":\"foo\"}}") }}"
 
     # # Checkout the private action
     # - name: Checkout Private Action
