@@ -40,5 +40,5 @@ runs:
     # Run the private action
     - name: Run Private Action
       id: run_private_action
-      uses: ".github/actions/private-action-runner"
+      uses: '.github/actions/private-action-runner'
       with: ${{ inputs.inputs }}
