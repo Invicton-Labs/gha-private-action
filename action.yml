@@ -14,7 +14,7 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
 
-outputs: ${{ runs.steps.output_json_test.outputs.test_output }}
+outputs: ${{ inputs }}
 
 runs:
   using: 'composite'
