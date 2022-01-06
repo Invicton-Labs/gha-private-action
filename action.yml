@@ -15,7 +15,8 @@ inputs:
     required: true
   
 
-outputs: ${{ steps.run_private_action.outputs }}
+outputs: 
+  outputs: ${{ steps.run_private_action.outputs }}
 
 runs:
   using: 'composite'
