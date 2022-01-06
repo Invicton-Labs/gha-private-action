@@ -1,46 +1,42 @@
 name: 'Run Private GitHub Action'
 description: 'Runs a privately-hosted GitHub Action'
 inputs:
-  repository:
+  action_repository:
     description: The repository of the private action to run
     required: true
 
-  ref:
+  action_ref:
     description: The ref to check out for the private action repository
     required: false
     default: ''
 
-  token:
+  action_token:
     description: The GitHub token to use for checking out the private repository
     required: true
   
 
-#outputs: ${{ steps.run_private_action.outputs }}
+outputs: steps.run_private_action.outputs
 
 runs:
   using: 'composite'
   steps:
-    - name: Echo inputs
+    # Generate a unique checkout path for the action
+    - name: Generate Unique Checkout Path
+      id: generate_checkout_path
       shell: bash
-      run: echo "${{ toJSON(inputs) }}"
+      run: echo ::set-output name=checkout_path::"${{ github.workspace }}/.github/actions/private-action-${RANDOM}${RANDOM}${RANDOM}"
 
-    # # Generate a unique checkout path for the action
-    # - name: Generate Unique Checkout Path
-    #   id: generate_checkout_path
-    #   shell: bash
-    #   run: echo ::set-output name=checkout_path::"${{ github.workspace }}/.github/actions/private-action-${RANDOM}${RANDOM}${RANDOM}"
+    # Checkout the private action
+    - name: Checkout Private Action
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ inputs.action_repository }}
+        ref: ${{ inputs.action_ref }}
+        token: ${{ inputs.action_token }}
+        path: ${{ steps.generate_checkout_path.outputs.checkout_path }}
 
-    # # Checkout the private action
-    # - name: Checkout Private Action
-    #   uses: actions/checkout@v2
-    #   with:
-    #     repository: ${{ inputs.repository }}
-    #     ref: ${{ inputs.ref }}
-    #     token: ${{ inputs.token }}
-    #     path: ${{ steps.generate_checkout_path.outputs.checkout_path }}
-
-    # # Run the private action
-    # - name: Run Private Action
-    #   id: run_private_action
-    #   uses: ${{ steps.generate_checkout_path.outputs.checkout_path }}
-    #   with: fromJSON(inputs.inputs)
+    # Run the private action
+    - name: Run Private Action
+      id: run_private_action
+      uses: steps.generate_checkout_path.outputs.checkout_path
+      with: inputs.inputs
