@@ -41,15 +41,20 @@ runs:
     - name: Remove Wrapper Inputs
       id: clean_inputs
       shell: bash
+      working-directory: ./.github/actions/run-private-action/
+      # If JQ is not installed, install it (using )
       run: |
         if ! command -v jq &> /dev/null; then
           if command -v apt &> /dev/null; then
             sudo apt install -y jq
           elif command -v yum &> /dev/null; then
             sudo yum install -y jq
+          else
+            echo "Unable to install jq"
+            exit 1
           fi
         fi
-        CLEANED_INPUTS=$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<< "${{ toJSON(inputs) }}")
+        CLEANED_INPUTS=$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<EOFPRIVATEACTIONJSON ${{ toJSON(inputs) }} EOFPRIVATEACTIONJSON)
         echo "$CLEANED_INPUTS"
         echo ::set-output name=cleaned_inputs::"$CLEANED_INPUTS"
 
