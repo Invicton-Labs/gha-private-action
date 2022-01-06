@@ -54,13 +54,15 @@ runs:
             exit 1
           fi
         fi
-        echo <<EOFPRIVATEACTIONJSON
+        INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
         ${{ toJSON(inputs) }}
         EOFPRIVATEACTIONJSON
-        ) >> .inputs.json
-        cat .inputs.json
+        )
+        echo "Inputs JSON: $INPUTS_JSON"
+        echo "$INPUTS_JSON" >> .inputs.json
         CLEANED_INPUTS="$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq 'del(.action_token)')"
-        echo "$CLEANED_INPUTS"
+        CLEANED_INPUTS="$(jq 'del(.action_repository)' .inputs.json | jq 'del(.action_ref)' | jq 'del(.action_token)')"
+        echo "Cleaned Inputs JSON: $CLEANED_INPUTS"
         echo ::set-output name=cleaned_inputs::"$CLEANED_INPUTS"
 
     # Create a directory for checking out the private action repository
