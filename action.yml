@@ -14,7 +14,9 @@ inputs:
     description: The GitHub token to use for checking out the private repository
     required: true
   
-outputs: ${{ fromJSON(steps.map_outputs.outputs.mapped_outputs) }}
+outputs:
+  action_outputs:
+    value: ${{ fromJSON(steps.map_outputs.outputs.mapped_outputs) }}
 
 runs:
   using: 'composite'
@@ -34,12 +36,9 @@ runs:
         token: ${{ inputs.action_token }}
         path: ./.github/actions/run-private-action/
 
-    # Remove any inputs that shouldn't be passed to the private action
-    - name: Remove Wrapper Inputs
-      id: clean_inputs
+    # If JQ is not installed, install it (using apt or yum, as appropriate)
+    - name: Install JQ
       shell: bash
-      working-directory: ./.github/actions/run-private-action/
-      # If JQ is not installed, install it (using apt or yum, as appropriate)
       run: |
         if ! command -v jq &> /dev/null; then
           if command -v apt &> /dev/null; then
@@ -51,6 +50,13 @@ runs:
             exit 1
           fi
         fi
+
+    # Remove any inputs that shouldn't be passed to the private action
+    - name: Remove Extraneous Inputs
+      id: clean_inputs
+      shell: bash
+      working-directory: ./.github/actions/run-private-action/
+      run: |
         INPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
         ${{ toJSON(inputs) }}
         EOFPRIVATEACTIONJSON
