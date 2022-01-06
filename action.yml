@@ -16,7 +16,7 @@ inputs:
   
 outputs:
   action_outputs:
-    value: ${{ steps.map_outputs.outputs.mapped_outputs }}
+    value: ${{ toJSON(steps.run_private_action.outputs) }}
 
 runs:
   using: 'composite'
@@ -70,18 +70,18 @@ runs:
       uses: ./.github/actions/run-private-action/
       with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
 
-    # Map the outputs into a format that can be handled by the outputs parameter
-    - name: Map Private Action Outputs
-      id: map_outputs
-      shell: bash
-      working-directory: ./.github/actions/run-private-action/
-      run: |
-        OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
-        ${{ toJSON(steps.run_private_action.outputs) }}
-        EOFPRIVATEACTIONJSON
-        )
-        echo "$OUTPUTS_JSON" >> .outputs.json
-        echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
+    # # Map the outputs into a format that can be handled by the outputs parameter
+    # - name: Map Private Action Outputs
+    #   id: map_outputs
+    #   shell: bash
+    #   working-directory: ./.github/actions/run-private-action/
+    #   run: |
+    #     OUTPUTS_JSON=$(cat <<EOFPRIVATEACTIONJSON
+    #     ${{ toJSON(steps.run_private_action.outputs) }}
+    #     EOFPRIVATEACTIONJSON
+    #     )
+    #     echo "$OUTPUTS_JSON" >> .outputs.json
+    #     echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
 
     # Map the outputs into a format that can be handled by the outputs parameter
     - name: Cleanup Directory
