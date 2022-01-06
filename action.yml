@@ -15,9 +15,9 @@ inputs:
     required: true
   
   inputs:
-    description: Inputs for the private action
+    description: Inputs for the private action, in JSON format
     required: false
-    default: fromJSON('{}')
+    default: '{}'
 
 outputs: ${{ steps.run_private_action.outputs }}
 
@@ -43,4 +43,4 @@ runs:
     - name: Run Private Action
       id: run_private_action
       uses: ${{ steps.generate_checkout_path.outputs.checkout_path }}
-      with: ${{ inputs.inputs }}
+      with: fromJSON(inputs.inputs)
