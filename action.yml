@@ -35,10 +35,10 @@ runs:
         repository: ${{ inputs.action_repository }}
         ref: ${{ inputs.action_ref }}
         token: ${{ inputs.action_token }}
-        path: ${{ steps.generate_checkout_path.outputs.checkout_path }}
+        path: ".github/actions/private-action-runner" # ${{ steps.generate_checkout_path.outputs.checkout_path }}
 
     # Run the private action
     - name: Run Private Action
       id: run_private_action
-      uses: "${{ steps.generate_checkout_path.outputs.checkout_path }}"
+      uses: ".github/actions/private-action-runner"
       with: ${{ inputs.inputs }}
