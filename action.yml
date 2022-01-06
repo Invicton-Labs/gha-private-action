@@ -37,8 +37,19 @@ runs:
         token: ${{ inputs.action_token }}
         path: ./.github/actions/run-private-action/
 
+    # Remove any inputs that shouldn't be passed to the private action
+    - name: Remove Wrapper Inputs
+      id: clean_inputs
+      shell: bash
+      run: |
+        if ! command -v jq &> /dev/null; then
+          sudo apt install jq
+        fi
+        sudo apt install jq
+        echo ::set-output name=cleaned_inputs::"$(jq 'map(del(.action_repository, .action_ref, .action_token))' <<< "${{ toJSON(inputs) }}")"
+
     # Run the private action
     - name: Run Private Action
       id: run_private_action
       uses: ./.github/actions/run-private-action/
-      with: ${{ inputs }}
+      with: ${{ fromJSON( steps.clean_inputs.outputs.cleaned_inputs ) }}
