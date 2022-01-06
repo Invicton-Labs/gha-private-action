@@ -81,7 +81,6 @@ runs:
         EOFPRIVATEACTIONJSON
         )
         echo "$OUTPUTS_JSON" >> .outputs.json
-        cat .outputs.json
         echo ::set-output name=mapped_outputs::"$(jq -c 'map_values({value:.})' .outputs.json)"
 
     # Map the outputs into a format that can be handled by the outputs parameter
@@ -89,5 +88,3 @@ runs:
       shell: bash
       run: |
         rm -rf ./.github/actions/run-private-action/
-        echo "${{ steps.map_outputs.outputs.mapped_outputs }}"
-
