@@ -15,7 +15,7 @@ inputs:
     required: true
   
 
-outputs: steps.run_private_action.outputs
+outputs: ${{ steps.run_private_action.outputs }}
 
 runs:
   using: 'composite'
@@ -39,4 +39,4 @@ runs:
     - name: Run Private Action
       id: run_private_action
       uses: steps.generate_checkout_path.outputs.checkout_path
-      with: inputs.inputs
+      with: ${{ inputs.inputs }}
